@@ -1,0 +1,29 @@
+{
+	"name": "incroy-node",
+	"private": true,
+	"version": "1.0.0",
+	"description": "full stack typescript",
+	"main": "index.js",
+	"scripts": {
+		"build": "lerna run build"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/pulkitbhardwaj/incroy-node.git"
+	},
+	"keywords": [],
+	"author": "Pulkit Bhardwaj <pulkitbhardwaj1994@gmail.com>",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/pulkitbhardwaj/incroy-node/issues"
+	},
+	"homepage": "https://github.com/pulkitbhardwaj/incroy-node#readme",
+	"workspaces": {
+		"packages": [
+			"packages/*"
+		]
+	},
+	"devDependencies": {
+		"lerna": "^3.22.1"
+	}
+}
