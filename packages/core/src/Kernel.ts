@@ -16,16 +16,26 @@ class Kernel extends Application {
 	protected connection?: Connection
 	protected schemaResolvers?: NonEmptyArray<Function>
 
-	// Express App Router
+	/**
+	 * Express Kernel Router
+	 */
 	public readonly router = express()
 
-	// Initialize Express Router
-	public readonly initialize = async () => {
-		console.log('init kernel')
+	constructor() {
+		super()
+		this.useDatabase = this.useDatabase.bind(this)
+		this.useApolloMiddleware = this.useApolloMiddleware.bind(this)
+		this.run = this.run.bind(this)
+	}
+
+	/**
+	 * Initialize Kernel
+	 */
+	public async initialize() {
 		this.useApplications()
 		await this.useDatabase()
 		this.useExpressMiddlewares()
-		await this.useMiddlewares()
+		this.useMiddlewares()
 		await this.useApolloMiddleware()
 		this.useURLHandlers()
 	}
@@ -33,7 +43,7 @@ class Kernel extends Application {
 	/**
 	 * Create PostgreSQL Pool
 	 */
-	protected readonly useDatabase = async () => {
+	protected async useDatabase() {
 		let host = process.env.DB_HOST || 'localhost'
 		let port = process.env.DB_PORT ? parseInt(process.env.DB_PORT) : 5433
 		let database = process.env.DB_NAME || 'hiring-test'
@@ -47,15 +57,16 @@ class Kernel extends Application {
 			database,
 			username,
 			password,
-			synchronize: true,
 			entities: this.entities,
+			synchronize: true,
+			logging: true,
 		})
 	}
 
 	/**
 	 * Add Apollo GraphQL middleware
 	 */
-	protected readonly useApolloMiddleware = async () => {
+	protected async useApolloMiddleware() {
 		if (this.resolvers) {
 			let [first, ...rest] = this.resolvers
 			this.schemaResolvers = [first, ...rest]
@@ -73,7 +84,7 @@ class Kernel extends Application {
 	/**
 	 * Add basic Express middlewares
 	 */
-	protected readonly useExpressMiddlewares = async () => {
+	protected useExpressMiddlewares() {
 		this.router.use(logger('dev'))
 		this.router.use(cors())
 		// this.router.use(session())
@@ -82,7 +93,7 @@ class Kernel extends Application {
 	/**
 	 * Run Server
 	 */
-	protected readonly run = async () => {
+	public async run() {
 		await this.initialize()
 
 		let hostname = process.env.HOST || 'localhost'

@@ -11,47 +11,59 @@ interface Application {
 	resolvers?: Function[]
 	entities?: (Function | EntitySchema<any>)[]
 	apps?: Application[]
-	readonly initialize: () => Promise<void>
 }
 
 class Application {
-	// Express Router
+	/**
+	 * Express Application Router
+	 */
 	public readonly router = Router()
 
-	// Initialize Router
-	public readonly initialize = async () => {
+	constructor() {
+		this.initialize = this.initialize.bind(this)
+		this.useApplications = this.useApplications.bind(this)
+		this.useMiddlewares = this.useMiddlewares.bind(this)
+		this.useURLHandlers = this.useURLHandlers.bind(this)
+	}
+
+	/**
+	 * Initialize Application
+	 */
+	public initialize() {
 		this.useApplications()
-		console.log('init app')
-		await this.useMiddlewares()
+		this.useMiddlewares()
 		this.useURLHandlers()
 	}
 
 	/**
 	 * Add Applications
 	 */
-	protected readonly useApplications = () => {
-		console.log(this.apps)
-		this.apps?.forEach(({ resolvers, entities, initialize }) => {
-			initialize()
-			if (resolvers) {
+	protected useApplications() {
+		this.apps?.forEach((app) => {
+			app.initialize()
+
+			if (app.resolvers) {
 				if (this.resolvers) {
-					this.resolvers = this.resolvers.concat(resolvers)
+					this.resolvers = this.resolvers.concat(app.resolvers)
 				} else {
-					this.resolvers = resolvers
+					this.resolvers = app.resolvers
 				}
 			}
-			if (entities) {
+
+			if (app.entities) {
 				if (this.entities) {
-					this.entities = this.entities.concat(entities)
+					this.entities = this.entities.concat(app.entities)
 				} else {
-					this.entities = entities
+					this.entities = app.entities
 				}
 			}
 		})
 	}
 
-	// Register Router middlewares
-	protected readonly useMiddlewares = async () => {
+	/**
+	 * Register Router middlewares
+	 */
+	protected useMiddlewares() {
 		this.middlewares?.forEach((middleware) => {
 			Array.isArray(middleware)
 				? this.router.use(...middleware)
@@ -59,8 +71,10 @@ class Application {
 		})
 	}
 
-	// Register Router urls
-	protected readonly useURLHandlers = () => {
+	/**
+	 * Register Router urls
+	 */
+	protected useURLHandlers() {
 		this.urls?.forEach(([path, handler]: URL) => {
 			if (handler instanceof Application) {
 				this.router.use(path, handler.router)
