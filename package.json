@@ -1,5 +1,5 @@
 {
-	"name": "incroy-node",
+	"name": "incroy",
 	"private": true,
 	"version": "1.0.0",
 	"description": "full stack typescript",
@@ -20,7 +20,8 @@
 	"homepage": "https://github.com/pulkitbhardwaj/incroy-node#readme",
 	"workspaces": {
 		"packages": [
-			"packages/*"
+			"packages/*",
+			"project/*"
 		]
 	},
 	"devDependencies": {
