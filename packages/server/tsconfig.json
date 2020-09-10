@@ -1,0 +1,37 @@
+{
+	"compilerOptions": {
+		"watch": true,
+		"allowJs": true,
+		"target": "ES2018",
+		"module": "commonjs",
+		"lib": ["es2018", "esnext.asynciterable"],
+		"noImplicitAny": true,
+		"removeComments": true,
+		"strictNullChecks": true,
+		"strictFunctionTypes": true,
+		"noImplicitThis": true,
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"noImplicitReturns": true,
+		"noFallthroughCasesInSwitch": true,
+		"sourceMap": false,
+		"outDir": "lib",
+		"strict": false,
+		"downlevelIteration": true,
+		// "skipDefaultLibCheck": true,
+		"preserveConstEnums": true,
+		"forceConsistentCasingInFileNames": true,
+		"resolveJsonModule": true,
+		"pretty": true,
+		"declaration": true,
+		"emitDecoratorMetadata": true,
+		"experimentalDecorators": true,
+		// For React
+		"moduleResolution": "node",
+		"esModuleInterop": true,
+		"allowSyntheticDefaultImports": true,
+		"jsx": "react"
+	},
+	"include": ["src/**/*"],
+	"compileOnSave": true
+}
