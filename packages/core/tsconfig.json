@@ -2,8 +2,9 @@
 	"compilerOptions": {
 		"watch": true,
 		"allowJs": true,
-		"target": "ES5",
+		"target": "ES2018",
 		"module": "commonjs",
+		"lib": ["es2018", "esnext.asynciterable"],
 		"noImplicitAny": true,
 		"removeComments": true,
 		"strictNullChecks": true,

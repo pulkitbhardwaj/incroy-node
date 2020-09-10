@@ -4,20 +4,14 @@ import { EntitySchema } from 'typeorm'
 
 export type URL = [PathParams, Application] | [PathParams, ...RequestHandler[]]
 
-interface Application {
-	readonly router: Router
-	urls?: URL[]
-	middlewares?: Handler[]
-	resolvers?: Function[]
-	entities?: (Function | EntitySchema<any>)[]
-	apps?: Application[]
-}
-
 class Application {
-	/**
-	 * Express Application Router
-	 */
 	public readonly router = Router()
+
+	public urls?: URL[]
+	public middlewares?: Handler[]
+	public resolvers?: Function[]
+	public entities?: (Function | EntitySchema<any>)[]
+	public apps?: Application[]
 
 	constructor() {
 		this.initialize = this.initialize.bind(this)

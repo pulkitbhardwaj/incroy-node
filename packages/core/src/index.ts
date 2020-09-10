@@ -1,5 +1,5 @@
-import Kernel from './Kernel'
+import Kernel, { ResolverContext } from './Kernel'
 import Application, { URL } from './Application'
 
-export { Application, URL }
+export { Application, URL, ResolverContext }
 export default Kernel

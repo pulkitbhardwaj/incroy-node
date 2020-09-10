@@ -1,29 +1,46 @@
 import 'reflect-metadata'
-import { createServer } from 'http'
-import { buildSchema, NonEmptyArray } from 'type-graphql'
-import express, { Express } from 'express'
-import logger from 'morgan'
-import { ApolloServer } from 'apollo-server-express'
-import cors from 'cors'
-import Application from './Application'
+
 import { createConnection, Connection } from 'typeorm'
 
-interface Kernel extends Application {
-	readonly router: Express
-}
+import cors from 'cors'
+import logger from 'morgan'
+import Express, { Request, Response } from 'express'
+import { createServer, Server } from 'http'
 
+import session from 'express-session'
+import IORedis, { Redis } from 'ioredis'
+import connectRedis from 'connect-redis'
+
+import { buildSchema, NonEmptyArray } from 'type-graphql'
+import { ApolloServer } from 'apollo-server-express'
+
+import Application from './Application'
+
+export type ResolverContext = {
+	req: Request
+	res: Response
+	session: Redis
+}
 class Kernel extends Application {
+	public readonly router = Express()
+
+	protected readonly sessionCache = new IORedis({
+		name: 'session',
+		host: 'localhost',
+		port: 6379,
+		db: 0,
+	})
+
+	protected server?: Server
 	protected connection?: Connection
 	protected schemaResolvers?: NonEmptyArray<Function>
-
-	/**
-	 * Express Kernel Router
-	 */
-	public readonly router = express()
 
 	constructor() {
 		super()
 		this.useDatabase = this.useDatabase.bind(this)
+		this.useCORSMiddleware = this.useCORSMiddleware.bind(this)
+		this.useLoggerMiddleware = this.useLoggerMiddleware.bind(this)
+		this.useSessionMiddleware = this.useSessionMiddleware.bind(this)
 		this.useApolloMiddleware = this.useApolloMiddleware.bind(this)
 		this.run = this.run.bind(this)
 	}
@@ -34,14 +51,16 @@ class Kernel extends Application {
 	public async initialize() {
 		this.useApplications()
 		await this.useDatabase()
-		this.useExpressMiddlewares()
+		this.useCORSMiddleware()
+		this.useLoggerMiddleware()
+		this.useSessionMiddleware()
 		this.useMiddlewares()
 		await this.useApolloMiddleware()
 		this.useURLHandlers()
 	}
 
 	/**
-	 * Create PostgreSQL Pool
+	 * Use TypeORM database
 	 */
 	protected async useDatabase() {
 		let host = process.env.DB_HOST || 'localhost'
@@ -64,7 +83,7 @@ class Kernel extends Application {
 	}
 
 	/**
-	 * Add Apollo GraphQL middleware
+	 * Use Apollo GraphQL middleware
 	 */
 	protected async useApolloMiddleware() {
 		if (this.resolvers) {
@@ -73,21 +92,49 @@ class Kernel extends Application {
 			const apolloServer = new ApolloServer({
 				schema: await buildSchema({
 					resolvers: this.schemaResolvers,
-					validate: false,
 				}),
-				context: ({ req, res }) => ({ req, res }),
+				context: ({ req, res }) => ({ req, res, session: this.sessionCache }),
 			})
 			apolloServer.applyMiddleware({ app: this.router })
 		}
 	}
 
 	/**
-	 * Add basic Express middlewares
+	 * Use sessions middleware
 	 */
-	protected useExpressMiddlewares() {
+	protected useSessionMiddleware() {
+		let RedisStore = connectRedis(session)
+
+		this.router.use(
+			session({
+				store: new RedisStore({
+					client: this.sessionCache,
+				}),
+				name: 'qid',
+				secret: 'asdasdasdasdasdasd',
+				resave: false,
+				saveUninitialized: false,
+				cookie: {
+					httpOnly: true,
+					secure: false,
+					maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
+				},
+			}),
+		)
+	}
+
+	/**
+	 * Use Logger middleware
+	 */
+	protected useLoggerMiddleware() {
 		this.router.use(logger('dev'))
+	}
+
+	/**
+	 * Use CORS middleware
+	 */
+	protected useCORSMiddleware() {
 		this.router.use(cors())
-		// this.router.use(session())
 	}
 
 	/**
@@ -99,7 +146,8 @@ class Kernel extends Application {
 		let hostname = process.env.HOST || 'localhost'
 		let port = process.env.PORT ? parseInt(process.env.PORT) : 4000
 
-		return createServer(this.router).listen(port, hostname, () => {
+		this.server = createServer(this.router)
+		this.server.listen(port, hostname, () => {
 			console.log(`Server running at http://${hostname}:${port}`)
 		})
 	}
