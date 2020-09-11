@@ -1,3 +1,4 @@
+import { UserResolver } from './UserResolver'
 import { RegisterResolver } from './Register/RegisterResolver'
 import { LoginResolver } from './Login/LoginResolver'
 import { User } from './Entities/User'
@@ -15,7 +16,7 @@ class Users extends Application {
 
 	entities = [User]
 
-	resolvers = [LoginResolver, RegisterResolver]
+	resolvers = [UserResolver, LoginResolver, RegisterResolver]
 }
 
 export default new Users()

@@ -1,31 +1,26 @@
 import { ResolverContext } from '@incroy/core'
 import { User } from './../Entities/User'
-import { Resolver, Query, Arg, Mutation, Ctx } from 'type-graphql'
-import bcrypt from 'bcrypt'
+import { Resolver, Arg, Mutation, Ctx } from 'type-graphql'
+import { verify } from 'argon2'
 
 @Resolver()
 export class LoginResolver {
-	@Query(() => String)
-	async hello() {
-		return 'hello'
-	}
-
 	@Mutation(() => User)
 	async login(
 		@Arg('email') email: string,
 		@Arg('password') password: string,
-		@Ctx() { req }: ResolverContext,
-	): Promise<User | undefined> {
-		const user = await User.findOne({ where: { email } })
+		@Ctx() { req, db }: ResolverContext,
+	): Promise<User> {
+		const user = await db.findOne(User, { email })
 
 		if (!user) {
-			return undefined
+			throw new Error('invalid email')
 		}
 
-		const valid = bcrypt.compare(password, user.password)
+		const valid = await verify(user.password, password)
 
 		if (!valid) {
-			return undefined
+			throw new Error('invalid password')
 		}
 
 		if (req.session) {

@@ -1,6 +1,7 @@
+import { ResolverContext } from '@incroy/core'
 import { User } from './../Entities/User'
-import { Resolver, Query, Arg, Mutation } from 'type-graphql'
-import bcrypt from 'bcrypt'
+import { Resolver, Query, Arg, Mutation, Ctx } from 'type-graphql'
+import { hash } from 'argon2'
 
 @Resolver()
 export class RegisterResolver {
@@ -15,20 +16,31 @@ export class RegisterResolver {
 		@Arg('lastName') lastName: string,
 		@Arg('email') email: string,
 		@Arg('password') password: string,
+		@Ctx() { req, db }: ResolverContext,
 	): Promise<User | undefined> {
-		const hashedPassword = await bcrypt.hash(password, 12)
+		let user, hashedPassword
 
-		const user = await User.create({
-			firstName,
-			lastName,
-			email,
-			password: hashedPassword,
-		})
+		try {
+			hashedPassword = await hash(password)
 
-		if (!user) {
+			user = db.create(User, {
+				firstName,
+				lastName,
+				email,
+				password: hashedPassword,
+			})
+
+			await db.persistAndFlush(user)
+
+			if (req.session) {
+				req.session.userID = user.id
+				console.log('session created yaaay')
+			}
+
+			return user
+		} catch (error) {
+			console.error(error)
 			return undefined
 		}
-
-		return await user.save()
 	}
 }
