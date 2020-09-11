@@ -1,6 +1,11 @@
 import 'reflect-metadata'
 
-import { createConnection, Connection } from 'typeorm'
+import {
+	MikroORM,
+	EntityManager,
+	IDatabaseDriver,
+	Connection,
+} from '@mikro-orm/core'
 
 import cors from 'cors'
 import logger from 'morgan'
@@ -19,9 +24,12 @@ import Application from './Application'
 export type ResolverContext = {
 	req: Request
 	res: Response
+	db: EntityManager<IDatabaseDriver<Connection>>
 	session: Redis
 }
 class Kernel extends Application {
+	protected readonly __prod__ = process.env.NODE_ENV === 'production'
+
 	public readonly router = Express()
 
 	protected readonly sessionCache = new IORedis({
@@ -31,8 +39,9 @@ class Kernel extends Application {
 		db: 0,
 	})
 
-	protected server?: Server
-	protected connection?: Connection
+	protected server!: Server
+	protected db!: EntityManager<IDatabaseDriver<Connection>>
+
 	protected schemaResolvers?: NonEmptyArray<Function>
 
 	constructor() {
@@ -65,21 +74,26 @@ class Kernel extends Application {
 	protected async useDatabase() {
 		let host = process.env.DB_HOST || 'localhost'
 		let port = process.env.DB_PORT ? parseInt(process.env.DB_PORT) : 5433
-		let database = process.env.DB_NAME || 'hiring-test'
-		let username = process.env.DB_USER || 'postgres'
+		let dbName = process.env.DB_NAME || 'hiring-test'
+		let user = process.env.DB_USER || 'postgres'
 		let password = process.env.DB_PASS || 'root'
 
-		this.connection = await createConnection({
-			type: 'postgres',
-			host,
-			port,
-			database,
-			username,
-			password,
-			entities: this.entities,
-			synchronize: true,
-			logging: true,
-		})
+		try {
+			const orm = await MikroORM.init({
+				type: 'postgresql', // one of `mongo` | `mysql` | `mariadb` | `postgresql` | `sqlite`
+				dbName,
+				host,
+				port,
+				user,
+				password,
+				entities: this.entities,
+				debug: !this.__prod__,
+			})
+
+			this.db = orm.em
+		} catch (error) {
+			console.error(error)
+		}
 	}
 
 	/**
@@ -93,7 +107,12 @@ class Kernel extends Application {
 				schema: await buildSchema({
 					resolvers: this.schemaResolvers,
 				}),
-				context: ({ req, res }) => ({ req, res, session: this.sessionCache }),
+				context: ({ req, res }): ResolverContext => ({
+					req,
+					res,
+					db: this.db,
+					session: this.sessionCache,
+				}),
 			})
 			apolloServer.applyMiddleware({ app: this.router })
 		}
@@ -116,7 +135,8 @@ class Kernel extends Application {
 				saveUninitialized: false,
 				cookie: {
 					httpOnly: true,
-					secure: false,
+					sameSite: 'lax',
+					secure: this.__prod__,
 					maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
 				},
 			}),
@@ -127,7 +147,9 @@ class Kernel extends Application {
 	 * Use Logger middleware
 	 */
 	protected useLoggerMiddleware() {
-		this.router.use(logger('dev'))
+		if (!this.__prod__) {
+			this.router.use(logger('dev'))
+		}
 	}
 
 	/**
@@ -150,6 +172,8 @@ class Kernel extends Application {
 		this.server.listen(port, hostname, () => {
 			console.log(`Server running at http://${hostname}:${port}`)
 		})
+
+		return this
 	}
 }
 

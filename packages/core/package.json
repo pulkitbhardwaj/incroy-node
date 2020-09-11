@@ -1,5 +1,6 @@
 {
 	"name": "@incroy/core",
+	"type": "commonjs",
 	"version": "1.0.0",
 	"description": "> TODO: description",
 	"author": "Pulkit Bhardwaj <pulkitbhardwaj1994@gmail.com>",
@@ -26,6 +27,8 @@
 		"url": "https://github.com/pulkitbhardwaj/incroy-node/issues"
 	},
 	"dependencies": {
+		"@mikro-orm/core": "^4.0.1",
+		"@mikro-orm/postgresql": "^4.0.1",
 		"@types/express-graphql": "^0.9.0",
 		"@types/morgan": "^1.9.1",
 		"apollo-server-express": "^2.17.0",
@@ -41,8 +44,7 @@
 		"ioredis": "^4.17.3",
 		"morgan": "^1.10.0",
 		"reflect-metadata": "^0.1.13",
-		"type-graphql": "^1.0.0",
-		"typeorm": "^0.2.25"
+		"type-graphql": "^1.0.0"
 	},
 	"devDependencies": {
 		"@types/connect-redis": "^0.0.14",

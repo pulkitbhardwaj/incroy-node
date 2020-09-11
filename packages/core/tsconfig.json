@@ -17,6 +17,7 @@
 		"sourceMap": false,
 		"outDir": "lib",
 		"strict": true,
+		// "strictPropertyInitialization": false,
 		"downlevelIteration": true,
 		// "skipDefaultLibCheck": true,
 		"preserveConstEnums": true,

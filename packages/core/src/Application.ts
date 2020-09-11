@@ -1,6 +1,11 @@
 import { PathParams } from 'express-serve-static-core'
 import { RequestHandler, Router, Handler } from 'express'
-import { EntitySchema } from 'typeorm'
+import {
+	EntityClass,
+	AnyEntity,
+	EntityClassGroup,
+} from '@mikro-orm/core/typings'
+import { EntitySchema } from '@mikro-orm/core/metadata'
 
 export type URL = [PathParams, Application] | [PathParams, ...RequestHandler[]]
 
@@ -10,7 +15,12 @@ class Application {
 	public urls?: URL[]
 	public middlewares?: Handler[]
 	public resolvers?: Function[]
-	public entities?: (Function | EntitySchema<any>)[]
+	public entities?: (
+		| string
+		| EntityClass<AnyEntity<any>>
+		| EntityClassGroup<AnyEntity<any>>
+		| EntitySchema<any, undefined>
+	)[]
 	public apps?: Application[]
 
 	constructor() {
