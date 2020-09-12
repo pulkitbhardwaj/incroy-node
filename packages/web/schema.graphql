@@ -1,0 +1,34 @@
+# Exposes a URL that specifies the behaviour of this scalar.
+directive @specifiedBy(
+  # The URL that specifies the behaviour of this scalar.
+  url: String!
+) on SCALAR
+# The javascript `Date` as string. Type represents date and time as the ISO Date string.
+scalar DateTime
+
+type Mutation {
+  register(
+    password: String!
+    email: String!
+    lastName: String!
+    firstName: String!
+  ): User!
+  login(password: String!, email: String!): User!
+}
+
+type Query {
+  users: [User!]!
+  user(id: ID!): User
+  me: User
+  yo: String!
+}
+
+type User {
+  id: ID!
+  firstName: String!
+  lastName: String!
+  email: String!
+  updatedAt: DateTime!
+  createdAt: DateTime!
+}
+

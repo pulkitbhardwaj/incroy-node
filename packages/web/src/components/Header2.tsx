@@ -1,5 +1,6 @@
 import React from 'react'
 import { createUseStyles } from 'react-jss'
+import { Link } from 'react-router-dom'
 import { Theme } from '../theme'
 
 interface HeaderProps {
@@ -17,12 +18,22 @@ const useStyles = createUseStyles((theme: Theme) => ({
 		backgroundColor: theme.backgroundColor,
 		color: 'white',
 	}),
+	menuButton: {},
 }))
 
 const Header: React.FC<HeaderProps> = ({ height }) => {
-	const { header } = useStyles({ height })
+	const { header, menuButton } = useStyles({ height })
 
-	return <header className={header}>Hello</header>
+	return (
+		<header className={header}>
+			{/* <Button className={menuButton} to="/">
+				enu Button */}
+			{/* </Button> */}
+			<Link to="/"></Link>
+			{/* Logo */}
+			{/* Search Bar */}
+		</header>
+	)
 }
 
 export default Header
