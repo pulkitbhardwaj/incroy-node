@@ -106,6 +106,6 @@ dist
 
 packages/*/lib
 
-.lock
+*.lock
 
 migrations/

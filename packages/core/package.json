@@ -20,7 +20,6 @@
 		"url": "git+https://github.com/pulkitbhardwaj/incroy-node.git"
 	},
 	"scripts": {
-		"start": "nodemon --watch lib",
 		"build": "tsc"
 	},
 	"bugs": {
