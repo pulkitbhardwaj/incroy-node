@@ -58,9 +58,9 @@ class Kernel extends Application {
 	 * Initialize Kernel
 	 */
 	public async initialize() {
+		this.useCORSMiddleware()
 		this.useApplications()
 		await this.useDatabase()
-		this.useCORSMiddleware()
 		this.useLoggerMiddleware()
 		this.useSessionMiddleware()
 		this.useMiddlewares()
@@ -114,7 +114,14 @@ class Kernel extends Application {
 					session: this.sessionCache,
 				}),
 			})
-			apolloServer.applyMiddleware({ app: this.router })
+
+			apolloServer.applyMiddleware({
+				app: this.router,
+				cors: {
+					origin: 'http://localhost:3000',
+					credentials: true,
+				},
+			})
 		}
 	}
 
@@ -156,7 +163,12 @@ class Kernel extends Application {
 	 * Use CORS middleware
 	 */
 	protected useCORSMiddleware() {
-		this.router.use(cors())
+		this.router.use(
+			cors({
+				credentials: true,
+				origin: 'http://localhost:3000',
+			}),
+		)
 	}
 
 	/**
