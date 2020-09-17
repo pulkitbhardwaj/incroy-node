@@ -1,8 +1,6 @@
-import { UserResolver } from './UserResolver'
-import { RegisterResolver } from './Register/RegisterResolver'
-import { LoginResolver } from './Login/LoginResolver'
-import { User } from './Entities/User'
 import { URL, Application } from '@incroy/core'
+import { User } from './entities/User'
+import { UserResolver, LoginResolver, RegisterResolver } from './resolvers'
 
 class Users extends Application {
 	urls: URL[] = [

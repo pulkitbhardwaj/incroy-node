@@ -1,10 +1,11 @@
-import { AppProps } from 'next/app'
 import React, { useEffect } from 'react'
-import { ThemeProvider } from 'react-jss'
+import { AppProps } from 'next/app'
+import { ThemeProvider } from '@material-ui/core/styles'
+import CssBaseline from '@material-ui/core/CssBaseline'
 import { ApolloProvider } from '@apollo/client'
 
 import { theme } from '../theme'
-import { useApollo } from '../graphql'
+import { useApollo } from '../graphql/apollo'
 
 export default function App({ Component, pageProps }: AppProps) {
 	// For Apollo Client
@@ -12,7 +13,7 @@ export default function App({ Component, pageProps }: AppProps) {
 
 	// For React JSS
 	useEffect(() => {
-		const style = document.getElementById('server-side-styles')
+		const style = document.getElementById('jss-server-side')
 
 		if (style) {
 			style.parentNode?.removeChild(style)
@@ -20,10 +21,12 @@ export default function App({ Component, pageProps }: AppProps) {
 	}, [])
 
 	return (
-		<ThemeProvider theme={theme}>
-			<ApolloProvider client={client}>
+		<ApolloProvider client={client}>
+			<ThemeProvider theme={theme}>
+				{/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
+				<CssBaseline />
 				<Component {...pageProps} />
-			</ApolloProvider>
-		</ThemeProvider>
+			</ThemeProvider>
+		</ApolloProvider>
 	)
 }

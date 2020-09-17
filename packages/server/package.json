@@ -34,6 +34,7 @@
 		"@mikro-orm/cli": "^4.0.1",
 		"@mikro-orm/core": "^4.0.1",
 		"@mikro-orm/migrations": "^4.0.1",
+		"apollo-server-express": "^2.17.0",
 		"argon2": "^0.27.0",
 		"class-validator": "^0.12.2",
 		"connect-redis": "^5.0.0",

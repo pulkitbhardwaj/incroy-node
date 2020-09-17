@@ -20,7 +20,7 @@ export default {
 	port,
 	user,
 	password,
-	entities: ['./lib/**/Entities/*.js'], // path to your JS entities (dist), relative to `baseDir`
-	entitiesTs: ['./src/**/Entities/*.ts'],
+	entities: ['./lib/**/models/*.js'], // path to your JS entities (dist), relative to `baseDir`
+	entitiesTs: ['./src/**/models/*.ts'],
 	debug: true,
 }

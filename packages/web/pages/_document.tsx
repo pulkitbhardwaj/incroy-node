@@ -1,32 +1,28 @@
-// For React JSS
-import { Fragment } from 'react'
+// For Material UI
+import { Children } from 'react'
 import Document, { DocumentContext } from 'next/document'
-import { SheetsRegistry, JssProvider, createGenerateId } from 'react-jss'
+import { ServerStyleSheets } from '@material-ui/core/styles'
 
 export default class MyDocument extends Document {
 	static async getInitialProps(ctx: DocumentContext) {
-		const registry = new SheetsRegistry()
-		const generateId = createGenerateId()
+		// Render app and page and get the context of the page with collected side effects.
+		const sheets = new ServerStyleSheets()
 		const originalRenderPage = ctx.renderPage
+
 		ctx.renderPage = () =>
 			originalRenderPage({
-				enhanceApp: (App) => (props) => (
-					<JssProvider registry={registry} generateId={generateId}>
-						<App {...props} />
-					</JssProvider>
-				),
+				enhanceApp: (App) => (props) => sheets.collect(<App {...props} />),
 			})
 
 		const initialProps = await Document.getInitialProps(ctx)
 
 		return {
 			...initialProps,
-			styles: (
-				<Fragment>
-					{initialProps.styles}
-					<style id="server-side-styles"> {registry.toString()} </style>
-				</Fragment>
-			),
+			// Styles fragment is rendered after the app and page rendering finish.
+			styles: [
+				...Children.toArray(initialProps.styles),
+				sheets.getStyleElement(),
+			],
 		}
 	}
 }

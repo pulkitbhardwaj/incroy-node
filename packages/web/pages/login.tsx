@@ -1,74 +1,163 @@
-import React, { FC, FormEventHandler } from 'react'
-import { createUseStyles } from 'react-jss'
-import { useInput } from '../components/Input'
+import React, { FC, useEffect, useState } from 'react'
+import { useFormik } from 'formik'
 import Layout from '../components/Layout'
-import { Theme } from '../theme'
-import { useMutation, gql, useApolloClient } from '@apollo/client'
+import Avatar from '@material-ui/core/Avatar'
+import Button from '@material-ui/core/Button'
+import TextField from '@material-ui/core/TextField'
+import FormControlLabel from '@material-ui/core/FormControlLabel'
+import Checkbox from '@material-ui/core/Checkbox'
+import Link from '@material-ui/core/Link'
+import Grid from '@material-ui/core/Grid'
+import LockOutlinedIcon from '@material-ui/icons/LockOutlined'
+import Typography from '@material-ui/core/Typography'
+import Container from '@material-ui/core/Container'
+import { makeStyles } from '@material-ui/core/styles'
+import { MeDocument, useLoginMutation } from '../graphql'
+import { useRouter } from 'next/router'
 
-interface LoginProps {}
+interface Props {}
 
-const useStyles = createUseStyles((theme: Theme) => ({
-	form: {
-		height: '100vh',
-		width: '50%',
-		margin: 'auto',
+const useStyles = makeStyles((theme) => ({
+	paper: {
+		marginTop: theme.spacing(8),
 		display: 'flex',
 		flexDirection: 'column',
 		alignItems: 'center',
-		justifyContent: 'center',
 	},
-	input: {
-		margin: 16,
-		...theme.input,
+	avatar: {
+		margin: theme.spacing(1),
+		backgroundColor: theme.palette.secondary.main,
+	},
+	form: {
+		width: '100%', // Fix IE 11 issue.
+		marginTop: theme.spacing(1),
+	},
+	submit: {
+		margin: theme.spacing(3, 0, 2),
 	},
 }))
 
-const Login: FC<LoginProps> = () => {
-	const { form, input } = useStyles()
+const Login: FC<Props> = () => {
+	const classes = useStyles()
 
-	const [username, onUsernameChange] = useInput('')
-	const [password, onPasswordChange] = useInput('')
+	const router = useRouter()
 
-	const mutation = gql`
-		mutation Login($email: String!, $password: String!) {
-			login(email: $email, password: $password) {
-				id
-				firstName
-				email
+	const [login, { error }] = useLoginMutation({
+		refetchQueries: [{ query: MeDocument }],
+	})
+
+	const {
+		values,
+		handleChange,
+		handleBlur,
+		handleSubmit,
+		isSubmitting,
+		errors,
+		setErrors,
+	} = useFormik({
+		initialValues: {
+			email: '',
+			password: '',
+		},
+		onSubmit: async (values) => {
+			await login({
+				variables: { email: values.email, password: values.password },
+			})
+			router.push('/')
+		},
+	})
+
+	useEffect(() => {
+		console.log('effect error')
+		if (error) {
+			console.log(isSubmitting)
+
+			switch (error.message) {
+				case 'invalid email':
+					setErrors({
+						email: 'Invalid Email',
+					})
+					break
+
+				case 'invalid password':
+					setErrors({
+						password: 'Invalid Password',
+					})
+					break
 			}
 		}
-	`
-
-	const [login, { data }] = useMutation(mutation, { client: useApolloClient() })
-
-	const submit: FormEventHandler = (event) => {
-		event.preventDefault()
-		login({ variables: { email: username, password } })
-	}
+	}, [error])
 
 	return (
 		<Layout title="Log In">
-			<h1>Log In</h1>
-			<form className={form} onSubmit={submit} autoComplete="off">
-				<input
-					className={input}
-					type="text"
-					name="username"
-					id="username"
-					value={username}
-					onChange={onUsernameChange}
-				/>
-				<input
-					className={input}
-					type="password"
-					name="password"
-					id="password"
-					value={password}
-					onChange={onPasswordChange}
-				/>
-				<button type="submit">Log In</button>
-			</form>
-			{data && <h1>{data.firstName}</h1>}
+			<Container component="main" maxWidth="xs">
+				<div className={classes.paper}>
+					<Avatar className={classes.avatar}>
+						<LockOutlinedIcon />
+					</Avatar>
+					<Typography component="h1" variant="h5">
+						Sign in
+					</Typography>
+					<form className={classes.form} onSubmit={handleSubmit}>
+						<TextField
+							variant="outlined"
+							margin="normal"
+							required
+							fullWidth
+							id="email"
+							label="Email Address"
+							name="email"
+							autoComplete="email"
+							autoFocus
+							value={values.email}
+							onChange={handleChange}
+							onBlur={handleBlur}
+							error={!!errors.email}
+							helperText={errors.email}
+						/>
+						<TextField
+							variant="outlined"
+							margin="normal"
+							required
+							fullWidth
+							name="password"
+							label="Password"
+							type="password"
+							id="password"
+							autoComplete="current-password"
+							value={values.password}
+							onChange={handleChange}
+							onBlur={handleBlur}
+							error={!!errors.password}
+							helperText={errors.password}
+						/>
+						<FormControlLabel
+							control={<Checkbox value="remember" color="primary" />}
+							label="Remember me"
+						/>
+						<Button
+							type="submit"
+							fullWidth
+							variant="contained"
+							color="primary"
+							className={classes.submit}>
+							Sign In
+						</Button>
+						<Grid container>
+							<Grid item xs>
+								<Link href="#" variant="body2">
+									Forgot password?
+								</Link>
+							</Grid>
+							<Grid item>
+								<Link href="#" variant="body2">
+									{"Don't have an account? Sign Up"}
+								</Link>
+							</Grid>
+						</Grid>
+					</form>
+				</div>
+			</Container>
 		</Layout>
 	)
 }

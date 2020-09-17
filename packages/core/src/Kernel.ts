@@ -117,10 +117,7 @@ class Kernel extends Application {
 
 			apolloServer.applyMiddleware({
 				app: this.router,
-				cors: {
-					origin: 'http://localhost:3000',
-					credentials: true,
-				},
+				cors: false,
 			})
 		}
 	}

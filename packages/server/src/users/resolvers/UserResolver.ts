@@ -1,4 +1,4 @@
-import { User } from './Entities/User'
+import { User } from '../entities/User'
 import { ResolverContext } from '@incroy/core'
 import { Resolver, Query, Arg, Ctx, ID } from 'type-graphql'
 
