@@ -1,21 +1,20 @@
-import React, { FC, useEffect, useState } from 'react'
+import { NextPage } from 'next'
+import { useEffect } from 'react'
 import { useFormik } from 'formik'
-import Layout from '../components/Layout'
+import NextLink from 'next/link'
 import Avatar from '@material-ui/core/Avatar'
 import Button from '@material-ui/core/Button'
 import TextField from '@material-ui/core/TextField'
-import FormControlLabel from '@material-ui/core/FormControlLabel'
-import Checkbox from '@material-ui/core/Checkbox'
 import Link from '@material-ui/core/Link'
 import Grid from '@material-ui/core/Grid'
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined'
 import Typography from '@material-ui/core/Typography'
 import Container from '@material-ui/core/Container'
 import { makeStyles } from '@material-ui/core/styles'
-import { MeDocument, useLoginMutation } from '../graphql'
-import { useRouter } from 'next/router'
 
-interface Props {}
+import { useRouter } from 'next/router'
+import Layout from '../../../components/Layout'
+import { MeDocument, useChangePasswordMutation } from '../../../graphql'
 
 const useStyles = makeStyles((theme) => ({
 	paper: {
@@ -37,14 +36,14 @@ const useStyles = makeStyles((theme) => ({
 	},
 }))
 
-const Login: FC<Props> = () => {
+const ChangePassword: NextPage = () => {
 	const classes = useStyles()
 
-	const router = useRouter()
-
-	const [login, { error }] = useLoginMutation({
+	const [changePassword, { error }] = useChangePasswordMutation({
 		refetchQueries: [{ query: MeDocument }],
 	})
+
+	const router = useRouter()
 
 	const {
 		values,
@@ -56,35 +55,28 @@ const Login: FC<Props> = () => {
 		setErrors,
 	} = useFormik({
 		initialValues: {
-			email: '',
 			password: '',
 		},
 		onSubmit: async (values) => {
-			await login({
-				variables: { email: values.email, password: values.password },
+			let res = await changePassword({
+				variables: {
+					token: router.query.token as string,
+					password: values.password,
+				},
 			})
-			router.push('/')
+
+			if (res.data?.changePassword) {
+				router.push('/')
+			}
 		},
 	})
 
 	useEffect(() => {
 		console.log('effect error')
 		if (error) {
-			console.log(isSubmitting)
-
-			switch (error.message) {
-				case 'invalid email':
-					setErrors({
-						email: 'Invalid Email',
-					})
-					break
-
-				case 'invalid password':
-					setErrors({
-						password: 'Invalid Password',
-					})
-					break
-			}
+			setErrors({
+				password: error.message,
+			})
 		}
 	}, [error])
 
@@ -96,7 +88,7 @@ const Login: FC<Props> = () => {
 						<LockOutlinedIcon />
 					</Avatar>
 					<Typography component="h1" variant="h5">
-						Sign in
+						Change Password
 					</Typography>
 					<form className={classes.form} onSubmit={handleSubmit}>
 						<TextField
@@ -104,36 +96,16 @@ const Login: FC<Props> = () => {
 							margin="normal"
 							required
 							fullWidth
-							id="email"
-							label="Email Address"
-							name="email"
-							autoComplete="email"
-							autoFocus
-							value={values.email}
-							onChange={handleChange}
-							onBlur={handleBlur}
-							error={!!errors.email}
-							helperText={errors.email}
-						/>
-						<TextField
-							variant="outlined"
-							margin="normal"
-							required
-							fullWidth
 							name="password"
-							label="Password"
+							label="New Password"
 							type="password"
 							id="password"
-							autoComplete="current-password"
+							autoFocus
 							value={values.password}
 							onChange={handleChange}
 							onBlur={handleBlur}
 							error={!!errors.password}
 							helperText={errors.password}
-						/>
-						<FormControlLabel
-							control={<Checkbox value="remember" color="primary" />}
-							label="Remember me"
 						/>
 						<Button
 							type="submit"
@@ -141,18 +113,15 @@ const Login: FC<Props> = () => {
 							variant="contained"
 							color="primary"
 							className={classes.submit}>
-							Sign In
+							Change
 						</Button>
 						<Grid container>
-							<Grid item xs>
-								<Link href="#" variant="body2">
-									Forgot password?
-								</Link>
-							</Grid>
 							<Grid item>
-								<Link href="#" variant="body2">
-									{"Don't have an account? Sign Up"}
-								</Link>
+								<NextLink href="/user/password/forgot">
+									<Link href="#" variant="body2">
+										Token expired? Get a new one
+									</Link>
+								</NextLink>
 							</Grid>
 						</Grid>
 					</form>
@@ -162,4 +131,4 @@ const Login: FC<Props> = () => {
 	)
 }
 
-export default Login
+export default ChangePassword

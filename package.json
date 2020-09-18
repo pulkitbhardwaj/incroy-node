@@ -22,13 +22,7 @@
 		]
 	},
 	"devDependencies": {
-		"lerna": "^3.22.1",
-		"@graphql-codegen/typescript": "1.17.8",
-		"@graphql-codegen/typescript-operations": "1.17.8",
-		"@graphql-codegen/typescript-react-apollo": "1.17.8",
-		"@graphql-codegen/fragment-matcher": "1.17.8",
-		"@graphql-codegen/introspection": "1.17.8",
-		"@graphql-codegen/cli": "1.17.8"
+		"lerna": "^3.22.1"
 	},
 	"scripts": {}
 }

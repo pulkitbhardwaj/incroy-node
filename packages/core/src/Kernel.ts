@@ -25,14 +25,14 @@ export type ResolverContext = {
 	req: Request
 	res: Response
 	db: EntityManager<IDatabaseDriver<Connection>>
-	session: Redis
+	redis: Redis
 }
 class Kernel extends Application {
 	protected readonly __prod__ = process.env.NODE_ENV === 'production'
 
 	public readonly router = Express()
 
-	protected readonly sessionCache = new IORedis({
+	protected readonly redis = new IORedis({
 		name: 'session',
 		host: 'localhost',
 		port: 6379,
@@ -111,7 +111,7 @@ class Kernel extends Application {
 					req,
 					res,
 					db: this.db,
-					session: this.sessionCache,
+					redis: this.redis,
 				}),
 			})
 
@@ -131,7 +131,7 @@ class Kernel extends Application {
 		this.router.use(
 			session({
 				store: new RedisStore({
-					client: this.sessionCache,
+					client: this.redis,
 				}),
 				name: 'qid',
 				secret: 'asdasdasdasdasdasd',

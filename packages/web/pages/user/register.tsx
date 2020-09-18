@@ -1,4 +1,5 @@
-import React, { FC, useEffect } from 'react'
+import { NextPage } from 'next'
+import { useEffect } from 'react'
 import { useFormik } from 'formik'
 import Avatar from '@material-ui/core/Avatar'
 import Button from '@material-ui/core/Button'
@@ -11,9 +12,10 @@ import LockOutlinedIcon from '@material-ui/icons/LockOutlined'
 import Typography from '@material-ui/core/Typography'
 import Container from '@material-ui/core/Container'
 import { makeStyles } from '@material-ui/core/styles'
-import { MeDocument, useRegisterMutation } from '../graphql'
-import Layout from '../components/Layout'
+import { MeDocument, useRegisterMutation } from '../../graphql'
+import Layout from '../../components/Layout'
 import { useRouter } from 'next/router'
+import NextLink from 'next/link'
 
 const useStyles = makeStyles((theme) => ({
 	paper: {
@@ -35,7 +37,7 @@ const useStyles = makeStyles((theme) => ({
 	},
 }))
 
-export const Register: FC = () => {
+export const Register: NextPage = () => {
 	const classes = useStyles()
 	const router = useRouter()
 
@@ -180,9 +182,11 @@ export const Register: FC = () => {
 						</Button>
 						<Grid container justify="flex-end">
 							<Grid item>
-								<Link href="#" variant="body2">
-									Already have an account? Sign in
-								</Link>
+								<NextLink href="/user/login">
+									<Link href="#" variant="body2">
+										Already have an account? Sign in
+									</Link>
+								</NextLink>
 							</Grid>
 						</Grid>
 					</form>

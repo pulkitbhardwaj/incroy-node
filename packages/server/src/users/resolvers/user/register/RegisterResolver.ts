@@ -1,6 +1,6 @@
 import { UserInputError } from 'apollo-server-express'
 import { ResolverContext } from '@incroy/core'
-import { User } from '../../entities/User'
+import { User } from '../../../entities/User'
 import { Resolver, Query, Arg, Mutation, Ctx } from 'type-graphql'
 import { hash } from 'argon2'
 import { RegisterInput } from './RegisterInput'

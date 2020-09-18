@@ -1,4 +1,4 @@
-import React, { FC, Fragment, useState } from 'react'
+import React, { FC, Fragment, useContext, useState } from 'react'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 import AppBar from '@material-ui/core/AppBar'
 import Toolbar from '@material-ui/core/Toolbar'
@@ -8,7 +8,8 @@ import IconButton from '@material-ui/core/IconButton'
 import MenuIcon from '@material-ui/icons/Menu'
 import { Sidebar } from './Sidebar'
 import Link from 'next/link'
-import { MeDocument, useLogoutMutation, useMeQuery } from '../graphql'
+import { MeDocument, useLogoutMutation } from '../graphql'
+import { Auth } from '../context/Auth'
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
@@ -29,13 +30,13 @@ export const Header: FC = () => {
 
 	const [sidebar, setSidebar] = useState(false)
 
-	const { data } = useMeQuery()
+	const user = useContext(Auth)
 
 	const [logout] = useLogoutMutation({
 		refetchQueries: [{ query: MeDocument }],
 	})
 
-	const UserButton = data?.me ? (
+	const UserButton = user ? (
 		<Button
 			color="inherit"
 			onClick={async () => {
@@ -45,10 +46,10 @@ export const Header: FC = () => {
 		</Button>
 	) : (
 		<Fragment>
-			<Link href="/register">
+			<Link href="/user/register">
 				<Button color="inherit">Register</Button>
 			</Link>
-			<Link href="/login">
+			<Link href="/user/login">
 				<Button color="inherit">Login</Button>
 			</Link>
 		</Fragment>
@@ -69,8 +70,11 @@ export const Header: FC = () => {
 						<MenuIcon />
 					</IconButton>
 					<Typography variant="h6" className={classes.title}>
-						News
+						<Link href="/">News</Link>
 					</Typography>
+					<Link href="/users">
+						<Button color="inherit">Users</Button>
+					</Link>
 					{UserButton}
 				</Toolbar>
 			</AppBar>

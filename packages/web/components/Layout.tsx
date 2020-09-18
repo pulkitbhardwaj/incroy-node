@@ -2,6 +2,7 @@ import React, { FC, Fragment } from 'react'
 import Head from 'next/head'
 // import Footer from './Footer'
 import { Header } from './Header'
+import { AuthProvider } from '../context/Auth'
 
 interface Props {
 	title?: string
@@ -25,9 +26,11 @@ const Layout: FC<Props> = ({
 					href="https://fonts.googleapis.com/css2?family=Open+Sans&family=Roboto&display=swap"
 				/>
 			</Head>
-			<Header />
-			{children}
-			{/* <Footer /> */}
+			<AuthProvider>
+				<Header />
+				{children}
+				{/* <Footer /> */}
+			</AuthProvider>
 		</Fragment>
 	)
 }

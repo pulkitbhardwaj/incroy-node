@@ -1,5 +1,5 @@
 import { ResolverContext } from '@incroy/core'
-import { User } from '../../entities/User'
+import { User } from '../../../entities/User'
 import { Resolver, Arg, Mutation, Ctx } from 'type-graphql'
 import { verify } from 'argon2'
 import { LoginInput } from './LoginInput'

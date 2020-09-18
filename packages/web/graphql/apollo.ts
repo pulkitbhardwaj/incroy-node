@@ -1,3 +1,4 @@
+import { MeDocument } from './index'
 import { useMemo } from 'react'
 import {
 	ApolloClient,
@@ -21,6 +22,9 @@ function createApolloClient() {
 				Query: {
 					fields: {
 						allPosts: concatPagination(),
+						me: {
+							keyArgs: [],
+						},
 					},
 				},
 			},

@@ -19,7 +19,7 @@
 		"strict": true,
 		"strictPropertyInitialization": false,
 		"downlevelIteration": true,
-		// "skipDefaultLibCheck": true,
+		"skipLibCheck": true,
 		"preserveConstEnums": true,
 		"forceConsistentCasingInFileNames": true,
 		"resolveJsonModule": true,
